@@ -1,0 +1,42 @@
+version: '3'
+services:
+  nginx:
+    image: 'nginx:latest'
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - './hosts:/etc/nginx/conf.d'
+      - './www:/var/www'
+      - './logs:/var/log/nginx'
+    links:
+      - php
+  php:
+    build: ./images/php
+    links:
+      - mysql
+    volumes:
+      - './www:/var/www'
+  mysql:
+    image: 'mysql:5.7.22'
+    ports:
+      - '13306:3306'
+    volumes:
+      - './mysql:/var/lib/mysql'
+    environment:
+      - MYSQL_DATABASE=tasks
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - mysql
+    ports:
+      - '9000:80'
+    environment:
+      - MYSQL_USERNAME=root
+      - MYSQL_ROOT_PASSWORD=password
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+
